@@ -81,6 +81,13 @@ It is intended to be published as a NuGet package so it can be reused across too
 
 A GitHub Actions workflow (`.github/workflows/publish.yml`) builds, packs, and publishes the library to NuGet when you push a Git tag that starts with `v` (for example `v1.0.0`) or trigger the workflow manually. Store your NuGet API key in the repository secrets as `NUGET_API_KEY` before running the workflow.
 
+Publish a version tag with, e.g.
+
+```sh
+git tag -a v0.1.0-alpha.1 -m "v0.1.0-alpha.1"
+git push origin v0.1.0-alpha.1
+```
+
 ## Development
 
 This repository uses central package management (`Directory.Packages.props`) so NuGet package versions are defined once for the entire solution. Add new package versions there and omit the `Version` attribute from individual project files.
