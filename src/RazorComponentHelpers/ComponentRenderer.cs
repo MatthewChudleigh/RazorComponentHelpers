@@ -7,11 +7,24 @@ using Microsoft.Extensions.Logging;
 
 public class ComponentRenderer(IServiceProvider serviceProvider, ILoggerFactory loggerFactory)
 {
-    public async Task<string> RenderComponentAsync<T>(CancellationToken cancel, Dictionary<string, object?>? parameters = null) where T : IComponent
+    public Task<string> RenderComponentAsync<T>(Dictionary<string, object?>? parameters = null) where T : IComponent
+    {
+        return InnerRenderComponentAsync<T>(null, parameters);
+    }
+
+    public Task<string> RenderComponentAsync<T>(CancellationToken cancel, Dictionary<string, object?>? parameters = null) where T : IComponent
+    {
+        return InnerRenderComponentAsync<T>(cancel, parameters);
+    }
+
+    private async Task<string> InnerRenderComponentAsync<T>(CancellationToken? cancel, Dictionary<string, object?>? parameters = null) where T : IComponent
     {
         await using var htmlRenderer = new HtmlRenderer(serviceProvider, loggerFactory);
         parameters ??= [];
-        parameters.Add("Cancel", cancel);
+        if (cancel != null)
+        {
+            parameters.Add("Cancel", cancel);
+        }
 
         var componentParameters = ParameterView.FromDictionary(parameters);
         var output = await htmlRenderer.Dispatcher.InvokeAsync(async () =>
