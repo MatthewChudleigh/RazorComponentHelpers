@@ -11,13 +11,7 @@ public static class ObservableExtensions
     {
         var channelObserver = new ChannelObserver<T>();
    
-        var sub = source.Subscribe(channelObserver);
-   
-        await using var _ = cancel.Register(() =>
-        {
-            sub.Dispose();
-            channelObserver.OnCompleted();
-        });
+        using var sub = source.Subscribe(channelObserver);
    
         await foreach (var item in channelObserver.ReadAllAsync(cancel))
             yield return item;
