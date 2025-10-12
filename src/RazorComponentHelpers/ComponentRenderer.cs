@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace RazorComponentHelpers;
@@ -8,14 +9,14 @@ using Microsoft.AspNetCore.Components.Web;
 
 public class ComponentRenderer(IServiceProvider serviceProvider, ILoggerFactory loggerFactory)
 {
-    public async Task<string> RenderPageAsync<TComponent, TLayout>(Dictionary<string, object?>? parameters = null)
+    public async Task<IResult> RenderPageAsync<TComponent, TLayout>(Dictionary<string, object?>? parameters = null)
         where TComponent : IComponent
         where TLayout : IComponent
     {
         return await InnerRenderLayoutWithBodyAsync<TComponent, TLayout>(null, parameters);
     }
 
-    public async Task<string> RenderPageAsync<TComponent, TLayout>(CancellationToken cancel, Dictionary<string, object?>? parameters = null) 
+    public async Task<IResult> RenderPageAsync<TComponent, TLayout>(CancellationToken cancel, Dictionary<string, object?>? parameters = null) 
         where TComponent : IComponent 
         where TLayout : IComponent
     {
@@ -85,7 +86,7 @@ public class ComponentRenderer(IServiceProvider serviceProvider, ILoggerFactory 
         });
     }
     
-    private async Task<string> InnerRenderLayoutWithBodyAsync<T, TLayout>(
+    private async Task<IResult> InnerRenderLayoutWithBodyAsync<T, TLayout>(
         CancellationToken? cancel,
         Dictionary<string, object?>? parameters = null)
         where T : IComponent
@@ -106,9 +107,11 @@ public class ComponentRenderer(IServiceProvider serviceProvider, ILoggerFactory 
 
         var layoutParameterView = ParameterView.FromDictionary(layoutParams);
 
-        return await htmlRenderer.Dispatcher.InvokeAsync(
+        var html = await htmlRenderer.Dispatcher.InvokeAsync(
             async () => (await htmlRenderer.RenderComponentAsync<TLayout>(layoutParameterView)).ToHtmlString()
         );
+
+        return Results.Text(html, "text/html");
     }
 
     public async Task<string> RenderFragmentAsync(RenderFragment fragment)
