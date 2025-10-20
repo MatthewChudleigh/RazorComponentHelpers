@@ -1,0 +1,24 @@
+<h1>
+    Main Page
+</h1>
+@Example()
+
+@code {
+
+    private const string IdExample = "main-example";
+    private static RenderFragment Example(string? info = null)
+    {
+        if (info != null)
+        {
+            return @<div>
+                       <h1>Example HTML fragment</h1>
+                       <p>@info</p>
+                   </div>;
+        }
+        
+        return @<div id="@IdExample" hx-trigger="load" hx-get="@RouteMainExample" hx-swap="outerHTML">
+            Example HTMX fragment
+        </div>;
+    }
+
+}
