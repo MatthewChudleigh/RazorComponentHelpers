@@ -13,7 +13,7 @@ Log.Logger = new LoggerConfiguration()
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddScoped<ComponentRenderer>();
+builder.Services.AddScoped<Renderer>();
 builder.Services.AddRazorComponents();
 
 StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configuration);

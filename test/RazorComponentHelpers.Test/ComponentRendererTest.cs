@@ -6,7 +6,7 @@ using RazorComponentHelpers;
 
 namespace RazorComponentHelpers.Test;
 
-public class ComponentRendererTest
+public class RendererTest
 {
     [Fact]
     public async Task RenderComponentAsync_WithoutCancellationToken_RendersParameters()
@@ -14,8 +14,9 @@ public class ComponentRendererTest
         var (renderer, provider) = CreateRenderer();
         await using (provider)
         {
-            var html = await renderer.RenderComponentAsync<TestComponent>(
-                parameters: new Dictionary<string, object?> { ["Message"] = "World" });
+            var html = await renderer.Component<TestComponent>(
+                parameters: new Dictionary<string, object?> { ["Message"] = "World" })
+                .ToHtmlAsync();
 
             Assert.Contains("Hello World", html);
             Assert.Contains("Cancel: False", html);
@@ -30,9 +31,10 @@ public class ComponentRendererTest
         {
             using var tokenSource = new CancellationTokenSource();
 
-            var html = await renderer.RenderComponentAsync<TestComponent>(
-                tokenSource.Token,
-                new Dictionary<string, object?> { ["Message"] = "World" });
+            var html = await renderer.Component<TestComponent>(
+                new Dictionary<string, object?> { ["Message"] = "World" })
+                .WithCancel(tokenSource.Token)
+                .ToHtmlAsync();
 
             Assert.Contains("Hello World", html);
             Assert.Contains("Cancel: True", html);
@@ -45,24 +47,24 @@ public class ComponentRendererTest
         var (renderer, provider) = CreateRenderer();
         await using (provider)
         {
-            var html = await renderer.RenderFragmentAsync(builder =>
+            var html = await renderer.Fragment(builder =>
             {
                 builder.OpenElement(0, "span");
                 builder.AddContent(1, "Fragment");
                 builder.CloseElement();
-            });
+            }).ToHtmlAsync();
 
             Assert.Contains("<span>Fragment</span>", html, StringComparison.OrdinalIgnoreCase);
         }
     }
 
-    private static (ComponentRenderer Renderer, ServiceProvider Provider) CreateRenderer()
+    private static (Renderer Renderer, ServiceProvider Provider) CreateRenderer()
     {
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddSingleton<NavigationManager, TestNavigationManager>();
         var provider = services.BuildServiceProvider();
-        var renderer = new ComponentRenderer(provider, NullLoggerFactory.Instance);
+        var renderer = new Renderer(provider, NullLoggerFactory.Instance);
         return (renderer, provider);
     }
 

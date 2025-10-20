@@ -10,7 +10,7 @@ public partial class Main
 
     public static void AddEndpoints(WebApplication app)
     {
-        app.MapGet(RouteMain, async (ComponentRenderer render) => await render.RenderPageAsync<Main, MainLayout>());
-        app.MapGet(RouteMainExample, async (ComponentRenderer render) => await render.RenderFragmentAsync(Example("Hello World!")));
+        app.MapGet(RouteMain, async (Renderer render) => await render.Component<Main>().WithLayout<MainLayout>().ToResultAsync());
+        app.MapGet(RouteMainExample, async (Renderer render) => await render.Fragment(Example("Hello World!")).ToResultAsync());
     }
 }
