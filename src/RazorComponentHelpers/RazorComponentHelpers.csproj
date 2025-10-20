@@ -6,7 +6,6 @@
     <Nullable>enable</Nullable>
     <IsPackable>true</IsPackable>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <TargetFrameworks>net10.0;net9.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
