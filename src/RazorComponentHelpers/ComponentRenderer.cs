@@ -1,3 +1,4 @@
+using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -29,6 +30,11 @@ public class Renderer(IServiceProvider serviceProvider, ILoggerFactory loggerFac
             Parameters = parameters ?? []
         };
     }
+
+    public ComponentMultiBuilder Multi(params List<ComponentBuilder> builders)
+    {
+        return new ComponentMultiBuilder(builders);
+    } 
     
     private class RenderFragmentWrapper : ComponentBase
     {
@@ -39,6 +45,27 @@ public class Renderer(IServiceProvider serviceProvider, ILoggerFactory loggerFac
         {
             Fragment?.Invoke(builder);
         }
+    }
+}
+
+public class ComponentMultiBuilder(List<ComponentBuilder> builders)
+{
+    public async Task<string> ToHtmlAsync()
+    {
+        var sb = new StringBuilder();
+        foreach (var builder in builders)
+        {
+            var html = await builder.ToHtmlAsync();
+            sb.AppendLine(html);
+        }
+
+        return sb.ToString();
+    }
+
+    public async Task<IResult> ToResultAsync()
+    {
+        var html = await ToHtmlAsync();
+        return Results.Text(html, "text/html");
     }
 }
 
